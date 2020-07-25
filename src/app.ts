@@ -1,5 +1,6 @@
-import { ApolloServer } from 'apollo-server';
 import 'dotenv/config';
+
+import { ApolloServer } from 'apollo-server';
 
 import schema from './schema';
 
