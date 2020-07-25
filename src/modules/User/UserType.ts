@@ -1,15 +1,22 @@
-import { GraphQLString, GraphQLList, GraphQLObjectType, GraphQLNonNull } from 'graphql';
+import {
+  GraphQLString,
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLNonNull,
+} from 'graphql';
 
 import { GraphQLDateTime } from 'graphql-iso-date';
+
+import AccountType from './AccountType';
 
 export default new GraphQLObjectType({
   name: 'UserType',
   fields: {
-    accountId: {
-      type: GraphQLNonNull(GraphQLString),
+    accounts: {
+      type: GraphQLList(AccountType),
     },
     name: {
-      type: GraphQLList(GraphQLString),
+      type: GraphQLNonNull(GraphQLString),
     },
     email: {
       type: GraphQLNonNull(GraphQLString),
