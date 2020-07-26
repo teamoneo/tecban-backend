@@ -1,5 +1,7 @@
 import 'dotenv/config';
 
+import { endOfMonth } from 'date-fns';
+
 import { rsAPIFirstBank, rsAPISecondBank } from '../../services/api/axios';
 
 interface Extract {
@@ -62,32 +64,62 @@ export async function getAllExtracts(): Promise<Extract[] | undefined> {
 export async function getExtractsByAccount(
   _: void,
   { input: props }: { [argName: string]: ExtractEspecificAccountProps },
-): Promise<string> {
+): Promise<Extract[] | undefined> {
   try {
     const response =
       props.bank === 1
-        ? await rsAPIFirstBank.get(
+        ? await rsAPIFirstBank.get<ResponseExtract>(
             `/open-banking/v3.1/aisp/accounts/${props.accountId}/transactions`,
           )
-        : await rsAPISecondBank.get(
+        : await rsAPISecondBank.get<ResponseExtract>(
             `/open-banking/v3.1/aisp/accounts/${props.accountId}/transactions`,
           );
-    return JSON.stringify(response.data.Data);
+    const extractFiltered = response.data.Data.Transaction.map(item => {
+      const {
+        Amount,
+        BookingDateTime,
+        CreditDebitIndicator,
+        TransactionInformation,
+      } = item;
+
+      return {
+        Amount: Amount.Amount,
+        BookingDateTime,
+        CreditDebitIndicator,
+        TransactionInformation,
+      };
+    });
+
+    return extractFiltered;
   } catch (error) {
     console.log(error);
   }
 
-  return 'sei la que caso é esse';
+  return undefined;
 }
 
-/**
+/*
 
-  O devemos pegar da api?
+  O que já temos:
 
-  - CreditDebitIndicator
-  - Amount => { Amount }
-  - BookingDateTime
-  - TransactionInformation
+  - Login (Usuario Fake)
 
- *
- */
+  - Busca de todas as Transações do cliente
+
+  - Busca de transações especificas de uma conta
+
+  ========================================
+
+  O que podemos acrescentar?
+
+  - Uma forma para analisar o risco do cliente.
+
+  - Uma pontuação fake (Score)
+
+  - Sorteios fake.
+
+  - Mostrar locais para pagamento de contas.
+
+  - Mostrar vantagens baseadas nas informações do usuário.
+
+*/
